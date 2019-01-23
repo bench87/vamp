@@ -19,6 +19,7 @@ trait MarathonNamespace extends LazyLogging {
   private lazy val tenantIdOverride: Option[String] = Try(Some(resolveWithNamespace(Config.string(s"$marathonConfig.tenant-id-override")()))).getOrElse(None)
   private lazy val tenantIdWorkflowOverride: Option[String] = Try(Some(resolveWithNamespace(Config.string(s"$marathonConfig.tenant-id-workflow-override")()))).getOrElse(None)
   private lazy val useBreedNameForServiceName: Option[Boolean] = Try(Some(Config.boolean(s"$marathonConfig.use-breed-name-for-service-name")())).getOrElse(None)
+  private lazy val idcPrefix: Option[String] = Try(Some(Config.string(s"$marathonConfig.idc-prefix")())).getOrElse(None)
 
   private val idMatcher = """^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$""".r
 
@@ -30,7 +31,7 @@ trait MarathonNamespace extends LazyLogging {
     if (useBreedNameForServiceName.getOrElse(false))
       s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}$nameDelimiter${artifactName2Id(breed)}"
     else
-      s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}${nameDelimiter}deployment-${artifactName2Id(deployment)}-service-${artifactName2Id(breed)}"
+      s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}${nameDelimiter}${idcPrefix.getOrElse("none").toLowerCase}-${breed.name.split("-").last}-deployment-${artifactName2Id(deployment)}-service-${artifactName2Id(breed)}"
   }
 
   protected def artifactName2Id(artifact: Artifact): String = artifact.name match {
