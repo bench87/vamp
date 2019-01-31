@@ -31,7 +31,7 @@ trait MarathonNamespace extends LazyLogging {
     if (useBreedNameForServiceName.getOrElse(false))
       s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}$nameDelimiter${artifactName2Id(breed)}"
     else
-      s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}${nameDelimiter}${idcPrefix.getOrElse("none").toLowerCase}-${breed.name.split("-").last}-deployment-${artifactName2Id(deployment)}-service-${artifactName2Id(breed)}"
+      s"$nameDelimiter${tenantIdOverride.getOrElse(namespace.name)}${nameDelimiter}${idcPrefix.getOrElse("none").toLowerCase}-${breed.name.contains("-") match { case true ⇒ breed.name.split("-").last case false ⇒ "" }}-deployment-${artifactName2Id(deployment)}-service-${artifactName2Id(breed)}"
   }
 
   protected def artifactName2Id(artifact: Artifact): String = artifact.name match {
