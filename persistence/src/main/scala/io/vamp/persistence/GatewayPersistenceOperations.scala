@@ -75,7 +75,9 @@ trait GatewayPersistenceOperations extends PersistenceApi {
       case Some(g) ⇒
         val ng = using(g)
         val modified = ng != g
-        if (modified) interceptForDeployment(ng, update = true)
+        if (modified) {
+          interceptForDeployment(ng, update = true)
+        }
         replyUpdate(ng, modified)
       case None ⇒ replyNone()
     }
@@ -121,8 +123,13 @@ trait GatewayPersistenceOperations extends PersistenceApi {
           case c if c.name == cluster.name ⇒
             if (update) {
               cluster.copy(gateways = cluster.gateways.map {
-                case g if g.name == gateway.name ⇒ gateway.copy(port = gateway.port.copy(name = port))
-                case g                           ⇒ g
+                case g if g.name == gateway.name ⇒ {
+                  gateway.copy(port = gateway.port.copy(name = port))
+                }
+                case g if g.name.isEmpty && gateway.name.equals(s"${deployment.name}/${cluster.name}/${g.port.name}") ⇒ {
+                  gateway.copy(port = gateway.port.copy(name = port))
+                }
+                case g ⇒ g
               })
             }
             else cluster.copy(gateways = cluster.gateways.filterNot(_.name == gateway.name))

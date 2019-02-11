@@ -127,6 +127,9 @@ class GatewaySynchronizationActor extends CommonSupportForActors with GatewaySel
       if (gateway.deployed) IoC.actorFor[PersistenceActor] ! UpdateGatewayDeploymentStatus(gateway, deployed = false)
       IoC.actorFor[PersistenceActor] ! CreateGatewayPort(gateway, availablePort)
     }
+    otherGateways foreach { gateway ⇒
+      IoC.actorFor[PersistenceActor] ! UpdateGatewayDeploymentStatus(gateway, deployed = false)
+    }
 
     GatewayPipeline(otherGateways, noPortGateways)
   }
