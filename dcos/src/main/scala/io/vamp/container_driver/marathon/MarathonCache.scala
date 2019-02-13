@@ -47,7 +47,7 @@ class MarathonCache(config: MarathonCacheConfig) {
   private def get[T](id: String): Option[(String, T)] = cache.get[(String, T)](id)
 
   private def put[T](operation: String, key: String, putValue: () ⇒ T)(timeToLivePeriod: FiniteDuration)(implicit logger: LoggingAdapter): (String, T) = synchronized {
-    logger.info(s"cache put [${timeToLivePeriod.toSeconds} s]: $key")
+    logger.debug(s"cache put [${timeToLivePeriod.toSeconds} s]: $key")
     val value = operation → putValue()
     cache.put[(String, T)](key, value, timeToLivePeriod)
     value

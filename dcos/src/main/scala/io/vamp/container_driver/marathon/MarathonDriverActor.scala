@@ -156,7 +156,7 @@ class MarathonDriverActor
   }
 
   private def get(deploymentServices: List[DeploymentServices], equalityRequest: ServiceEqualityRequest): Unit = {
-    log.info("getting deployment services")
+    log.debug("getting deployment services")
     val replyTo = sender()
     deploymentServices.flatMap(ds ⇒ ds.services.map((ds.deployment, _))).foreach {
       case (deployment, service) ⇒
@@ -497,7 +497,7 @@ class MarathonDriverActor
   }
 
   private def containers(app: App): Containers = {
-    log.info("[Marathon Driver . containers]")
+    //    log.info("[Marathon Driver . containers]")
     val scale = DefaultScale(Quantity(app.cpus), MegaByte(app.mem), app.instances)
     Containers(scale, instances(app))
   }

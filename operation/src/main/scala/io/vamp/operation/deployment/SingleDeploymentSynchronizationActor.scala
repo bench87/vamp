@@ -31,11 +31,12 @@ class SingleDeploymentSynchronizationActor extends DeploymentGatewayOperation wi
   }
 
   private def synchronize(containerService: ContainerService): Unit = {
-    log.info(s"[SingleDeploymentSynchronizationActor] Deployment Synchronization started for ${containerService.deployment.name}")
+    log.debug(s"[SingleDeploymentSynchronizationActor] Deployment Synchronization started for ${containerService.deployment.name}")
     containerService.deployment.clusters.find { cluster ⇒ cluster.services.exists(_.breed.name == containerService.service.breed.name) } match {
       case Some(cluster) ⇒
         val service = containerService.service
         val deployment = containerService.deployment
+        //        log.info(s"[SingleDeploymentsSynchronizationActor] Service ${deployment.name} Status ${service.status.intention.toString}")
         service.status.intention match {
           case Intention.Deployment   ⇒ deploy(deployment, cluster, service, containerService)
           case Intention.Undeployment ⇒ undeploy(deployment, cluster, service, containerService.containers)
@@ -59,8 +60,9 @@ class SingleDeploymentSynchronizationActor extends DeploymentGatewayOperation wi
         resolveEnvironmentVariables(deployment, deploymentCluster, deploymentService)
 
       else if (!matchingDeployable(containerService) || !matchingPorts(containerService) ||
-        !matchingEnvironmentVariables(containerService) || !matchingScale(deploymentService, cs) || !matchingHealth(containerService))
+        !matchingEnvironmentVariables(containerService) || !matchingScale(deploymentService, cs) || !matchingHealth(containerService)) {
         redeploy(deployment, deploymentCluster, deploymentService, containerService, update = true)
+      }
 
       else if (!matchingServers(deployment, deploymentService, cs))
         actorFor[PersistenceActor] ! UpdateDeploymentServiceInstances(deployment, deploymentCluster, deploymentService, cs.instances.map(convert(deploymentService, _)))
